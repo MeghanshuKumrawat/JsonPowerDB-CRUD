@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
+
+    <title>Dashboard Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="http://login2explore.com/jpdb/resources/js/0.0.4/jpdb-commons.js"></script>
+
+
+    <script>
+        $("#empId").focus();
+        function getTokenId() {
+            var url = document.location.href,
+                params = url.split('?')[1].split('&'),
+                data = {}, tmp;
+            for (var i = 0, l = params.length; i < l; i++) {
+                tmp = params[i].split('=');
+                data[tmp[0]] = tmp[1];
+            }
+            return data.name;
+        }
+        function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+            var url = dbBaseUrl + apiEndPointUrl;
+            var jsonObj;
+            $.post(url, reqString, function (result) {
+                jsonObj = JSON.parse(result);
+            }).fail(function (result) {
+                var dataJsonObj = result.responseText;
+                jsonObj = JSON.parse(dataJsonObj);
+            });
+            return jsonObj;
+        }
+
+        function validateAndGetFormData() {
+            var jsonStrObj = {
+                id: $("#empId").val(),
+                name: $("#empName").val(),
+                mobileno: $("#empPhone").val(),
+                email: $("#empEmail").val(),
+            };
+            return JSON.stringify(jsonStrObj);
+        }
+        function saveEmployee() {
+            var tokenId = getTokenId();
+            var jsonStr = validateAndGetFormData();
+            if (jsonStr === "") {
+                return;
+            }
+            var getReqStr = createPUTRequest(tokenId, jsonStr, "Student", "Student-Rel");
+            jQuery.ajaxSetup({ async: false });
+            var resultObj = executeCommand(getReqStr,
+                "http://api.login2explore.com:5577", "/api/iml");
+            jQuery.ajaxSetup({ async: true })
+            getJS();
+        }
+    </script>
+</head>
+
+<body onload="$('#empId').focus();">
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="https://login2explore.com/" id="token">Login2explore</a>
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="https://login2explore.com/jpdb/index.html">JsonPowerDB</a>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">
+                                <span data-feather="home"></span>
+                                Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="getJS();">
+                                <span data-feather="table"></span>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" onclick="createJS();">
+                                <span data-feather="file"></span>
+                                Create
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="updateJS();">
+                                <span data-feather="edit"></span>
+                                Update
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" onclick="deleteJS();">
+                                <span data-feather="trash"></span>
+                                Delete
+                            </a>
+                        </li>
+                    </ul>
+
+                    <h6
+                        class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Documentation</span>
+                        <a class="d-flex align-items-center text-muted" href="">
+                            <span data-feather="info"></span>
+                        </a>
+                    </h6>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+                <h2 class="json">Create <span class="power">Record</span></h2>
+                <div class="container mt-5">
+                    <form id="empForm" method="post">
+                        <div class="form-group">
+                            <span><label for="empId">Employee ID:</label> <label id="empIdMsg">
+                                </label></span>
+                            <input type="text" class="form-control" name="empId" id="empId"
+                                placeholder="Enter Employee ID" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="empName">Employee Name:</label>
+                            <input type="text" class="form-control" id="empName" placeholder="Enter Employee Name"
+                                name="empName">
+                        </div>
+                        <div class="form-group">
+                            <label for="empPhone">Phone:</label>
+                            <input type="text" class="form-control" id="empPhone" placeholder="Enter Employee Phone no"
+                                name="empPhone">
+                        </div>
+                        <div class="form-group">
+                            <label for="empEmail">Email:</label>
+                            <input type="email" class="form-control" id="empEmail" placeholder="Enter Employee Email"
+                                name="empEmail">
+                        </div>
+                        <input type="button" class="btn btn-primary" id="empSave" value="Save"
+                            onclick="saveEmployee();">
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+    <nav class="navbar navbar-dark fixed-bottom bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" id="token"> </a>
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="https://www.linkedin.com/in/meghanshu-kumrawat/">Meghanshu Kumrawat</a>
+    </nav>
+    <script>
+        function getJS() {
+            var b = getTokenId();
+            url = 'dashboard.html?name=' + b;
+
+            document.location.href = url;
+        }
+        function createJS() {
+            var b = getTokenId();
+            url = 'create-data.html?name=' + b;
+
+            document.location.href = url;
+        }
+        function updateJS() {
+            var b = getTokenId();
+            url = 'update-data.html?name=' + b;
+
+            document.location.href = url;
+        }
+        function deleteJS() {
+            var b = getTokenId();
+            url = 'delete-data.html?name=' + b;
+
+            document.location.href = url;
+        }
+    </script>
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+        feather.replace()
+    </script>
+</body>
+
+</html>
